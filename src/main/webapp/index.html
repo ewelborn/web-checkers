@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Checkers.com</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style>
+            .hidden {
+                display: none;
+            }
+            
+            #gameSettings {
+                margin: 5px;
+                padding: 5px;
+                background-color: #eeeed2;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Checkers.com</h1>
+        <h2>Join a game</h2>
+        <form action="joingame" method="GET">
+            <label for="gameID">4-Digit Gamecode</label>
+            <input id="gameID" name="gameID" type="text" placeholder="####">
+            <input type="submit" value="Go!">
+        </form>
+        <h2>Create a game</h2>
+        <form id="createGameForm" action="creategame" method="POST">
+            <label for="englishDraughts">English Draughts</label>
+            <input type="radio" id="englishDraughts" name="boardGame" value="EnglishDraughts">
+            <div class="hidden" id="gameSettings"></div>
+        </form>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $("input[name='boardGame']").prop("checked",false);
+            $("input[name='boardGame']").on("click",function(){
+                $.ajax({
+                    url: "API/gameSettings/"+$("input[name='boardGame']:checked").val(),
+                    type: "GET",
+                    contextType: "application/json",
+                    success: function(data) {
+                        let htmlString = "";
+                        data.forEach(function(gameSetting){
+                            htmlString += "<label for='"+gameSetting.key+"'>"+gameSetting.key+"</label>"
+                            if(gameSetting.type === "boolean") {
+                                htmlString += "<input id='"+gameSetting.key+"' name='"+gameSetting.key+"' type='checkbox' ";
+                                if(gameSetting.value === "true") {
+                                    htmlString += "checked";
+                                }
+                                htmlString += "><br>";
+                            }
+                        });
+                        htmlString += "<input type='submit' value='Start game!'>";
+                        $("#gameSettings").html(htmlString);
+                        $("#gameSettings").removeClass("hidden");
+                    },
+                    error: function(){
+                        alert("Network communication error.");
+                    }
+                })
+            });
+        </script>
+    </body>
+</html>
